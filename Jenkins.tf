@@ -1,22 +1,27 @@
-# Data source for latest Amazon Linux 2023 AMI
-data "aws_ami" "amazon_linux_2023" {
+# Data source for latest Ubuntu 22.04 LTS AMI
+data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["099720109477"] # Canonical, Ubuntu's publisher
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
 
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
 }
 
 # Jenkins Master EC2 Instance
 resource "aws_instance" "jenkins_master" {
-  ami           = data.aws_ami.amazon_linux_2023.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.small"
   key_name      = "skz"
 
@@ -45,4 +50,4 @@ resource "aws_eip" "jenkins_master" {
     Name        = "${var.project_name}-jenkins-master-eip"
     Environment = var.environment
   }
-} 
+}
